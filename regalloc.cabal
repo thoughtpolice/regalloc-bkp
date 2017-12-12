@@ -12,12 +12,6 @@ cabal-version:       >= 2.1
 tested-with:         GHC == 8.2.2
 
 -------------------------------------------------------------------------------
-
-flag use-graph
-  default: False
-  manual: True
-
--------------------------------------------------------------------------------
 -- Base types
 
 library regalloc-types
@@ -62,7 +56,7 @@ library regalloc-impl
 library regalloc-linear
   ghc-options:        -Wall -fwarn-tabs
   default-language:   Haskell2010
-  hs-source-dirs:     regalloc-linear
+  hs-source-dirs:     regalloc-impl
 
   build-depends:
     base              ^>= 4.10,
@@ -71,12 +65,11 @@ library regalloc-linear
     regalloc-ir
 
   exposed-modules:    RegAlloc.Impl.LinearScan
-  reexported-modules: RegAlloc.Impl.LinearScan as RegAlloc.Impl
 
 library regalloc-graph
   ghc-options:        -Wall -fwarn-tabs
   default-language:   Haskell2010
-  hs-source-dirs:     regalloc-graph
+  hs-source-dirs:     regalloc-impl
 
   build-depends:
     base              ^>= 4.10,
@@ -87,7 +80,6 @@ library regalloc-graph
     graphviz          ^>= 2999.19
 
   exposed-modules:    RegAlloc.Impl.GraphColor
-  reexported-modules: RegAlloc.Impl.GraphColor as RegAlloc.Impl
 
 -------------------------------------------------------------------------------
 
@@ -114,14 +106,10 @@ executable regalloc-example
     -- Base register allocation libraries
     regalloc-types,
     regalloc-ir,
-    regalloc-impl,
 
     -- Chosen IR implementation and allocation algorithm
-    regalloc-example-ir
-
-  if flag(use-graph)
-    build-depends: regalloc-graph
-  else
-    build-depends: regalloc-linear
+    regalloc-example-ir,
+    regalloc-graph,
+    regalloc-linear
 
   main-is: Main.hs
