@@ -1,0 +1,11 @@
+This is an attempt at using backpack to design a modular register allocator. It
+*requires* GHC 8.2.x and Cabal HEAD. The current version is basically just a
+backpack-ified version of John Wiegley's [[https://hackage.haskell.org/package/linearscan][linearscan package]].
+
+#+BEGIN_SRC bash
+$ ./nab-linearscan.sh # linearscan-1.0.0 doesn't work on 8.2.x
+$ cabal new-build
+$ cabal new-run regalloc-example
+#+END_SRC
+
+If you don't have GHC 8.2.2 just run ~cabal new-configure -w ghc-8.2.1~ first.

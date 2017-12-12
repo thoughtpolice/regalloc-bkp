@@ -1,0 +1,127 @@
+name:                regalloc
+version:             0.0.0.0
+category:            Compiler
+license:             MIT
+license-file:        LICENSE.txt
+synopsis:            Register allocation with Backpack
+copyright:           Copyright (c) Austin Seipp 2017
+author:              Austin Seipp
+maintainer:          Austin Seipp <aseipp@pobox.com>
+build-type:          Simple
+cabal-version:       >= 2.1
+tested-with:         GHC == 8.2.2
+
+-------------------------------------------------------------------------------
+
+flag use-graph
+  default: False
+  manual: True
+
+-------------------------------------------------------------------------------
+-- Base types
+
+library regalloc-types
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     regalloc-types
+
+  build-depends:
+    base              ^>= 4.10
+  exposed-modules:
+    RegAlloc.Types
+
+-------------------------------------------------------------------------------
+-- Signature libraries, characterizing our interfaces
+
+library regalloc-ir
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     regalloc-ir
+
+  build-depends:
+    base              ^>= 4.10,
+    regalloc-types
+  signatures:
+    RegAlloc.IR
+
+library regalloc-impl
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     regalloc-impl
+
+  build-depends:
+    base              ^>= 4.10,
+    regalloc-types,
+    regalloc-ir
+  signatures:
+    RegAlloc.Impl
+
+-------------------------------------------------------------------------------
+-- Implementations of the 'impl' interface
+
+library regalloc-linear
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     regalloc-linear
+
+  build-depends:
+    base              ^>= 4.10,
+    linearscan        ^>= 1.0,
+    regalloc-types,
+    regalloc-ir
+
+  exposed-modules:    RegAlloc.Impl.LinearScan
+  reexported-modules: RegAlloc.Impl.LinearScan as RegAlloc.Impl
+
+library regalloc-graph
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     regalloc-graph
+
+  build-depends:
+    base              ^>= 4.10,
+    regalloc-types,
+    regalloc-ir,
+
+    fgl               ^>= 5.5,
+    graphviz          ^>= 2999.19
+
+  exposed-modules:    RegAlloc.Impl.GraphColor
+  reexported-modules: RegAlloc.Impl.GraphColor as RegAlloc.Impl
+
+-------------------------------------------------------------------------------
+
+library regalloc-example-ir
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     regalloc-example
+
+  build-depends:
+    base              ^>= 4.10,
+    regalloc-types
+
+  exposed-modules:    IR
+  reexported-modules: IR as RegAlloc.IR
+
+executable regalloc-example
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+  hs-source-dirs:     regalloc-example
+
+  build-depends:
+    base              ^>= 4.10,
+
+    -- Base register allocation libraries
+    regalloc-types,
+    regalloc-ir,
+    regalloc-impl,
+
+    -- Chosen IR implementation and allocation algorithm
+    regalloc-example-ir
+
+  if flag(use-graph)
+    build-depends: regalloc-graph
+  else
+    build-depends: regalloc-linear
+
+  main-is: Main.hs

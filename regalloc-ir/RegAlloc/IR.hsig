@@ -1,0 +1,88 @@
+signature RegAlloc.IR where
+
+import qualified RegAlloc.Types as T
+
+--------------------------------------------------------------------------------
+
+-- | The type of an operation -- the entries in some @'Block'@ -- for some given
+-- intermediate representation.
+data Op
+
+-- | The type of a basic block for some given intermediate representation.
+data Block
+
+--------------------------------------------------------------------------------
+
+kind
+  :: Op
+  -> T.OpKind
+
+refs
+  :: Op
+  -> [T.VarInfo]
+
+move
+  :: Monad m
+  => T.PhysReg
+  -> T.VarId
+  -> T.PhysReg
+  -> m [Op]
+
+save
+  :: Monad m
+  => T.PhysReg
+  -> T.VarId
+  -> m [Op]
+
+restore
+  :: Monad m
+  => T.VarId
+  -> T.PhysReg
+  -> m [Op]
+
+allocate
+  :: Monad m
+  => Op
+  -> [((T.VarId, T.VarKind), T.PhysReg)]
+  -> m [Op]
+
+show
+  :: Op
+  -> String
+
+--------------------------------------------------------------------------------
+
+-- | Return the unique identifier for a given @'Block'@. The semantics are not
+-- important, only that this basic block ID is unique among all the input
+-- blocks.
+ident
+  :: Block
+  -> Int
+
+-- | Give a list of immediate successors in the DAG for the input @'Block'@.
+successors
+  :: Block
+  -> [Int]
+
+splitEdge
+  :: Monad m
+  => Block
+  -> Block
+  -> m (Block, Block)
+
+-- | Split a @'Block'@ into its operations -- the entry point, body, and exit
+-- point.
+operations
+  :: Block
+  -> ( [Op]
+     , [Op]
+     , [Op]
+     )
+
+-- | Replace a set of operations in a block with a set of allocated operations.
+setOperations
+  :: Block
+  -> [Op]
+  -> [Op]
+  -> [Op]
+  -> Block

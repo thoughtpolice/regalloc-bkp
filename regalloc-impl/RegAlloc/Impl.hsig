@@ -1,0 +1,11 @@
+signature RegAlloc.Impl where
+
+import           RegAlloc.IR (Block)
+
+--------------------------------------------------------------------------------
+
+allocate
+  :: Monad m
+  => Int
+  -> [Block]
+  -> m (String, Either [String] [Block])
