@@ -12,15 +12,22 @@ cabal-version:       >= 2.1
 tested-with:         GHC == 8.2.2
 
 -------------------------------------------------------------------------------
+
+common options
+  ghc-options:        -Wall -fwarn-tabs
+  default-language:   Haskell2010
+
+common deps
+  build-depends:
+    base              ^>= 4.10
+
+-------------------------------------------------------------------------------
 -- Base types
 
 library regalloc-types
-  ghc-options:        -Wall -fwarn-tabs
-  default-language:   Haskell2010
-  hs-source-dirs:     regalloc-types
+  import: options, deps
+  hs-source-dirs: regalloc-types
 
-  build-depends:
-    base              ^>= 4.10
   exposed-modules:
     RegAlloc.Types
 
@@ -28,23 +35,19 @@ library regalloc-types
 -- Signature libraries, characterizing our interfaces
 
 library regalloc-ir
-  ghc-options:        -Wall -fwarn-tabs
-  default-language:   Haskell2010
-  hs-source-dirs:     regalloc-ir
+  import: options, deps
+  hs-source-dirs: regalloc-ir
 
   build-depends:
-    base              ^>= 4.10,
     regalloc-types
   signatures:
     RegAlloc.IR
 
 library regalloc-impl
-  ghc-options:        -Wall -fwarn-tabs
-  default-language:   Haskell2010
-  hs-source-dirs:     regalloc-impl
+  import: options, deps
+  hs-source-dirs: regalloc-impl
 
   build-depends:
-    base              ^>= 4.10,
     regalloc-types,
     regalloc-ir
   signatures:
@@ -54,12 +57,10 @@ library regalloc-impl
 -- Implementations of the 'impl' interface
 
 library regalloc-linear
-  ghc-options:        -Wall -fwarn-tabs
-  default-language:   Haskell2010
-  hs-source-dirs:     regalloc-impl
+  import: options, deps
+  hs-source-dirs: regalloc-impl
 
   build-depends:
-    base              ^>= 4.10,
     linearscan        ^>= 1.0,
     regalloc-types,
     regalloc-ir
@@ -67,12 +68,10 @@ library regalloc-linear
   exposed-modules:    RegAlloc.Impl.LinearScan
 
 library regalloc-graph
-  ghc-options:        -Wall -fwarn-tabs
-  default-language:   Haskell2010
+  import: options, deps
   hs-source-dirs:     regalloc-impl
 
   build-depends:
-    base              ^>= 4.10,
     regalloc-types,
     regalloc-ir,
 
@@ -84,25 +83,20 @@ library regalloc-graph
 -------------------------------------------------------------------------------
 
 library regalloc-example-ir
-  ghc-options:        -Wall -fwarn-tabs
-  default-language:   Haskell2010
+  import: options, deps
   hs-source-dirs:     regalloc-example
 
   build-depends:
-    base              ^>= 4.10,
     regalloc-types
 
   exposed-modules:    IR
   reexported-modules: IR as RegAlloc.IR
 
 executable regalloc-example
-  ghc-options:        -Wall -fwarn-tabs
-  default-language:   Haskell2010
+  import: options, deps
   hs-source-dirs:     regalloc-example
 
   build-depends:
-    base              ^>= 4.10,
-
     -- Base register allocation libraries
     regalloc-types,
     regalloc-ir,
