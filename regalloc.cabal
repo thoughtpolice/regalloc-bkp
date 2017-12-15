@@ -17,15 +17,22 @@ common options
   ghc-options:        -Wall -fwarn-tabs
   default-language:   Haskell2010
 
-common deps
+common deps-basic
+  -- Common external libraries
   build-depends:
     base              ^>= 4.10
+
+common deps
+  -- Common internal private libraries
+  import: deps-basic
+  build-depends:
+    regalloc-types
 
 -------------------------------------------------------------------------------
 -- Base types
 
 library regalloc-types
-  import: options, deps
+  import: options, deps-basic
   hs-source-dirs: regalloc-types
 
   exposed-modules:
@@ -38,8 +45,6 @@ library regalloc-ir
   import: options, deps
   hs-source-dirs: regalloc-ir
 
-  build-depends:
-    regalloc-types
   signatures:
     RegAlloc.IR
 
@@ -48,7 +53,6 @@ library regalloc-impl
   hs-source-dirs: regalloc-impl
 
   build-depends:
-    regalloc-types,
     regalloc-ir
   signatures:
     RegAlloc.Impl
@@ -61,9 +65,9 @@ library regalloc-linear
   hs-source-dirs: regalloc-impl
 
   build-depends:
-    linearscan        ^>= 1.0,
-    regalloc-types,
-    regalloc-ir
+    regalloc-ir,
+
+    linearscan        ^>= 1.0
 
   exposed-modules:    RegAlloc.Impl.LinearScan
 
@@ -72,7 +76,6 @@ library regalloc-graph
   hs-source-dirs:     regalloc-impl
 
   build-depends:
-    regalloc-types,
     regalloc-ir,
 
     fgl               ^>= 5.5,
@@ -84,26 +87,24 @@ library regalloc-graph
 
 library regalloc-example-ir
   import: options, deps
-  hs-source-dirs:     regalloc-example
+  hs-source-dirs: regalloc-example
 
-  build-depends:
-    regalloc-types
-
-  exposed-modules:    IR
-  reexported-modules: IR as RegAlloc.IR
+  exposed-modules: IR
 
 executable regalloc-example
   import: options, deps
-  hs-source-dirs:     regalloc-example
+  hs-source-dirs: regalloc-example
+
+  main-is: Main.hs
 
   build-depends:
-    -- Base register allocation libraries
-    regalloc-types,
-    regalloc-ir,
-
     -- Chosen IR implementation and allocation algorithm
     regalloc-example-ir,
     regalloc-graph,
     regalloc-linear
 
-  main-is: Main.hs
+  mixins:
+    regalloc-linear (RegAlloc.Impl.LinearScan as IR.LinearScan)
+           requires (RegAlloc.IR as IR),
+    regalloc-graph  (RegAlloc.Impl.GraphColor as IR.GraphColor)
+           requires (RegAlloc.IR as IR)
